@@ -5,7 +5,7 @@
 다운로드한 웹 페이지에서 필요한 정보를 추출하는 작업
 
 ## Wget으로 크롤링하기
-```
+```bash
 $ wget -r --no-parent -w 1 -l 1 --restrict-file-name=nocontrol http://www.hanbit.co.kr/
 ```
 옵션 | 설명
@@ -24,37 +24,35 @@ www.hanbit.co.kr/ 이라는 디렉터리가 만들어지며, 내부에 파일이
 실행 결과는 트리 구조의 디렉터리로 구성된다.
 
 ## 유닉스 명렁어로 스크레이핑하기
-```
+```bash
 # full_book_list.html 내려받기
 $ wget http://www.hanbit.co.kr/store/books/full_book_list.html
 
-#원하는 데이터 추출
+# 원하는 데이터 추출
 $ cat full_book_list.html | grep '<a href="/store/books/look.php'
 
-#줄에서 원하는 문자열 위치 추출하기
-$ echo '<td class="left"><a href="/store/books/look.php?p_code=B3448548347">'
+# 줄에서 원하는 문자열 위치 추출하기
+$ cat full_book_list.html | grep '<a href="/store/books/look.php?p_code=' | sed -E 's/<[^>]*>//g'
+
+# 앞 쪽 공백 제거
+$ cat full_book_list.html | grep '<a href="/store/books/look.php?p_code=' | sed -E 's/<[^>]*>//g' | sed -E 's/^\s*//'
+
+# &#40; &#41; ()로 치환
+$ cat full_book_list.html | grep '<a href="/store/books/look.php?p_code=' | sed -E 's/<[^>]*>//g' | sed -E 's/^\s*//' | sed -E 's/&#40;/\(/g' | sed -E 's/&#41;/\)/g'
 ```
+명령어 | 설명
+---- | ----
+sed | 특정 조건에 맞는 줄을 치환하거나 제거한다 's/\<정규표현식\>/\<치환할문자\>/\<옵션\>'
 
-## Getting Super Powers
+## 정리
+유닉스 명령어만으로도 간단하게 크롤링과 스크레이핑을 할 수 있다.
+이러한 명령어는 가볍지만 실용적인 기능이 부족하다. wget은 디렉터리 단위의 제한밖에 걸지 못하며, 순서를 명시적으로 지정해서 링크를 따라 들어가는 등의 제어도 할 수 없다. 또한 파일을 다운로드하는 시점에 다른 처리도 불가능하다. 스크레이핑 때도 마찬가지의 문제를 가진다. 유닉스 명령어는 한 줄을 처리하는 데 특화되어 있으므로 여러 줄의 데이터 처리가 힘들다.
 
-Becoming a super hero is a fairly straight forward process:
-
-```
-$ give me super-powers
-```
-
-{% hint style="info" %}
- Super-powers are granted randomly so please submit an issue if you're not happy with yours.
-{% endhint %}
-
-Once you're strong enough, save the world:
-
-{% code title="hello.sh" %}
-```bash
-# Ain't no code for that yet, sorry
-echo 'You got to trust me on this, I saved the world'
-```
-{% endcode %}
+# 파이썬으로 시작하는 크롤링/스크레이핑
+## 파이썬을 사용할 때의 장점
+읽기 쉽다
+풍부한 서드파티 라이브러리를 가지고 있다.
+강력한 데이터 분석 라이브러리가 있어 스크레이핑 이후 처리에 용이하다.
 
 
 
