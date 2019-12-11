@@ -149,4 +149,46 @@ def scrape(html):
   HTML을 기반으로 정규 표현식을 사용해 도서 정보를 추출한다.
   반환값 : 도서(dict) 리스트
   """
+  
+  books = []
+  # re.findall()을 사용해 도서 하나에 해당하는 HTML 추출한다.
+  for partial_html in re.findall(r'<td class="left"><a.*?</td>', html, re.DOTALL):
+    # 도서 URL 추출
+    url = re.search(r'<a href="(.*?)">', partial_html).group(1)
+    url = 'http://www.hanbit.co.kr' + url
+    # 태그를 제거해서 도서 제목을 추출한다.
+    title = re.sub(r'<.*?>', '', partial_html)
+    title = unescape(title)
+    books.append({'url' : url, 'title' : title})
+    
+  return books
+  
+def save(db_path, books):
+  """
+  books로 전달된 도서 목록을 SQLite 데이터베이스에 저장한다.
+  반환값 : None
+  """
+  # DB 연결
+  conn = sqlite3.connect(db_path)
+  # 커서 추출
+  c = conn.cursor()
+  # execute() 메서드로 SQL 실행
+  c.execute('DROP TABLE IF EXISTS books')
+  # books 테이블 생성
+  c.execute('''
+    CREATE TABLE books (
+      title text,
+      url text
+    )
+  ''')
+  c.executemany('INSERT INTO books VALUES (:title, :url)', books)
+  # 커밋
+  conn.commit()
+  # 연결 종료
+  conn.close()
+  
+# 모듈로 다른 파일에서 읽어 들였을 때 main() 함수 호출 방지
+if _name_ = '_name_':
+  main()
+  """
 ```
