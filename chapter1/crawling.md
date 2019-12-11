@@ -105,3 +105,48 @@ for item in root.findall('channel/item/description/body/location/data')
   # 출력
   print(tm_ef, tmn, tmx, wf)
 ```
+
+### 파이썬으로 스크레이핑하기
+3개의 처리 내용을 3개의 함수로 구분하고, main() 함수에서 순차적으로 호출한다.  
+- fetch(url)  
+매개변수로 url을 받고 지정한 url의 웹 페이지를 추출한다.
+- scrape(html)  
+매개변수로 html을 받고, 정규 표현식을 사용해 HTML에서 도서 정보를 추출한다.
+- save(db_path, books)  
+매개변수로 도서 목록을 받고, SQLLite DB에 저장한다.
+
+```
+import re
+import sqlite3
+from urllib.request import urlopen
+from html import unescape
+
+def main():
+  """
+  메인
+  fetch(), scrape(), save() 함수 호출
+  """
+  html = fetch('http://www.hanbit.co.kr/store/full_book_list.html');
+  books = scrape(html)
+  save('books.db', books)
+  
+def fetch(url):
+  """
+  url을 기반으로 웹 페이지를 추출한다.
+  웹 페이지의 인코딩 형식은 Content-Type 헤더를 기반으로 찾는다.
+  반환값 : str 자료형의 HTML
+  """
+  
+  f = urlopen(url)
+  # HTTP 헤더를 기반으로 인코딩 형식 추출
+  encoding = f.info().get_content_charset(failobj="utf-8")
+  # 추출한 인코딩 형식을 기반으로 문자열을 디코딩한다.
+  html = f.read().decode(encoding)
+  return html
+  
+def scrape(html):
+  """
+  HTML을 기반으로 정규 표현식을 사용해 도서 정보를 추출한다.
+  반환값 : 도서(dict) 리스트
+  """
+```
